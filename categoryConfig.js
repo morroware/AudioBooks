@@ -1,6 +1,6 @@
-// bandConfig.js - LibriVox audiobook configuration
+// categoryConfig.js - LibriVox audiobook category configuration
 
-export const bandConfig = {
+export const categoryConfig = {
     // === SPECIAL OPTIONS ===
     'AllLibriVox': {
         query: 'collection:(librivoxaudio)',
@@ -8,7 +8,7 @@ export const bandConfig = {
         customSearch: false,
         yearRange: [1700, 2024]
     },
-    
+
     // === FICTION GENRES ===
     'ClassicLiterature': {
         query: 'collection:(librivoxaudio) AND subject:(fiction) AND (subject:(classic) OR subject:(literature))',
@@ -46,7 +46,7 @@ export const bandConfig = {
         query: 'collection:(librivoxaudio) AND (subject:(humor) OR subject:(humorous))',
         title: 'Humor & Satire'
     },
-    
+
     // === NON-FICTION ===
     'History': {
         query: 'collection:(librivoxaudio) AND subject:(history)',
@@ -76,7 +76,7 @@ export const bandConfig = {
         query: 'collection:(librivoxaudio) AND subject:(essays)',
         title: 'Essays & Letters'
     },
-    
+
     // === POETRY & DRAMA ===
     'Poetry': {
         query: 'collection:(librivoxaudio) AND subject:(poetry)',
@@ -90,7 +90,7 @@ export const bandConfig = {
         query: 'collection:(librivoxaudio) AND creator:(Shakespeare)',
         title: 'William Shakespeare'
     },
-    
+
     // === CHILDREN'S BOOKS ===
     'Childrens': {
         query: 'collection:(librivoxaudio) AND subject:("children\'s literature")',
@@ -100,7 +100,7 @@ export const bandConfig = {
         query: 'collection:(librivoxaudio) AND (subject:("fairy tales") OR subject:(folklore))',
         title: 'Fairy Tales & Folklore'
     },
-    
+
     // === BY AUTHOR (Popular) ===
     'JaneAusten': {
         query: 'collection:(librivoxaudio) AND creator:("Jane Austen")',
@@ -142,7 +142,7 @@ export const bandConfig = {
         query: 'collection:(librivoxaudio) AND creator:("L. Frank Baum")',
         title: 'L. Frank Baum (Oz Books)'
     },
-    
+
     // === BY LANGUAGE ===
     'French': {
         query: 'collection:(librivoxaudio) AND language:(French)',
@@ -164,7 +164,7 @@ export const bandConfig = {
         query: 'collection:(librivoxaudio) AND language:(Russian)',
         title: 'Russian Audiobooks'
     },
-    
+
     // === SEARCH OPTIONS ===
     'Author_Search': {
         query: null,
@@ -186,19 +186,19 @@ export const bandConfig = {
     }
 };
 
-// Get book configuration
-export function getBandConfig(bookId) {
-    return bandConfig[bookId] || bandConfig['AllLibriVox'];
+// Get category configuration
+export function getCategoryConfig(categoryId) {
+    return categoryConfig[categoryId] || categoryConfig['AllLibriVox'];
 }
 
-// Get all book options for dropdown (organized by category)
-export function getAllBands() {
+// Get all category options for dropdown
+export function getAllCategories() {
     return [
         { group: 'Quick Options', options: [
-            { id: 'AllLibriVox', title: '📚 All LibriVox Audiobooks' },
-            { id: 'Author_Search', title: '✍️ Search by Author' },
-            { id: 'Title_Search', title: '📖 Search by Title' },
-            { id: 'Custom', title: '⚙️ Custom Advanced Search' }
+            { id: 'AllLibriVox', title: 'All LibriVox Audiobooks' },
+            { id: 'Author_Search', title: 'Search by Author' },
+            { id: 'Title_Search', title: 'Search by Title' },
+            { id: 'Custom', title: 'Custom Advanced Search' }
         ]},
         { group: 'Fiction Genres', options: [
             { id: 'ClassicLiterature', title: 'Classic Literature' },

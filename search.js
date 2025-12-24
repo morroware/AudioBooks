@@ -1,16 +1,16 @@
 /**
- * search-improved.js - Book-focused search with covers and grid layout
+ * search.js - Audiobook-focused search with covers and grid layout
  */
 
 import { showLoading, hideLoading, showToast } from './utils.js';
-import { getBandConfig } from './bandConfig.js';
+import { getCategoryConfig } from './categoryConfig.js';
 import { storage } from './storage.js';
 
 // Search state
 let currentPage = 1;
-const resultsPerPage = 24; // More results for grid
+const resultsPerPage = 24;
 let totalResults = 0;
-let currentView = 'grid'; // Default to grid view
+let currentView = 'grid';
 let currentResults = [];
 let activeFilters = new Set();
 let lastSearchParams = null;
@@ -42,40 +42,40 @@ async function fetchWithRetry(url, retries = MAX_RETRIES) {
     }
 }
 
-export async function searchShows(page = 1, append = false) {
+export async function searchAudiobooks(page = 1, append = false) {
     const searchQueryInput = document.getElementById('searchQuery');
     const yearFromInput = document.getElementById('yearFrom');
     const yearToInput = document.getElementById('yearTo');
-    const bandSelector = document.getElementById('bandSelector');
+    const categorySelector = document.getElementById('categorySelector');
 
     const query = searchQueryInput ? searchQueryInput.value.trim() : '';
     const yearFrom = yearFromInput ? yearFromInput.value : '';
     const yearTo = yearToInput ? yearToInput.value : '';
-    const band = bandSelector ? bandSelector.value : 'AllLibriVox';
-    
-    lastSearchParams = { query, yearFrom, yearTo, band, page };
-    
+    const category = categorySelector ? categorySelector.value : 'AllLibriVox';
+
+    lastSearchParams = { query, yearFrom, yearTo, category, page };
+
     if (!append) {
         showLoading();
     }
     currentPage = page;
-    
+
     try {
-        const config = getBandConfig(band);
+        const config = getCategoryConfig(category);
         let baseQuery = config.query || 'collection:(librivoxaudio)';
-        const bandTitle = config.title;
-        
+        const categoryTitle = config.title;
+
         // Handle different search types
-        if (band === 'Author_Search' && query) {
+        if (category === 'Author_Search' && query) {
             baseQuery = `collection:(librivoxaudio) AND creator:(${query})`;
-        } else if (band === 'Title_Search' && query) {
+        } else if (category === 'Title_Search' && query) {
             baseQuery = `collection:(librivoxaudio) AND title:(${query})`;
-        } else if (band === 'Custom' && query) {
+        } else if (category === 'Custom' && query) {
             baseQuery = `collection:(librivoxaudio) AND (${query})`;
         } else if (baseQuery && query) {
             baseQuery += ` AND (${query})`;
         }
-        
+
         // Year filtering
         if (yearFrom || yearTo) {
             const fromYear = yearFrom || '1700';
@@ -84,7 +84,7 @@ export async function searchShows(page = 1, append = false) {
         } else if (config.yearRange) {
             baseQuery += ` AND year:[${config.yearRange[0]} TO ${config.yearRange[1]}]`;
         }
-        
+
         // Apply special filters
         activeFilters.forEach(filter => {
             if (filter === 'solo') {
@@ -95,20 +95,20 @@ export async function searchShows(page = 1, append = false) {
                 baseQuery += ' AND language:(English)';
             }
         });
-        
-        document.title = `${bandTitle} - LibriVox Audiobook Explorer`;
+
+        document.title = `${categoryTitle} - LibriVox Audiobooks`;
 
         const url = `https://archive.org/advancedsearch.php?` +
             `q=${encodeURIComponent(baseQuery)}` +
             `&fl[]=identifier,title,year,creator,date,language,runtime,description,subject` +
             `&sort[]=downloads+desc&output=json` +
             `&rows=${resultsPerPage}&page=${page}`;
-        
+
         const data = await fetchWithRetry(url);
-        
+
         hideLoading();
         const resultsDiv = document.getElementById('results');
-        
+
         if (!data.response || !data.response.docs || data.response.docs.length === 0) {
             if (resultsDiv && !append) {
                 resultsDiv.innerHTML = `
@@ -126,22 +126,22 @@ export async function searchShows(page = 1, append = false) {
             isLoadingMore = false;
             return;
         }
-        
+
         totalResults = data.response.numFound;
-        
+
         if (append) {
             currentResults = [...currentResults, ...data.response.docs];
         } else {
             currentResults = data.response.docs;
         }
-        
+
         if (resultsDiv) {
             updateResultsDisplay(append);
         }
-        
+
         updatePagination();
         isLoadingMore = false;
-        
+
     } catch (error) {
         console.error('Search error:', error);
         hideLoading();
@@ -153,15 +153,15 @@ export async function searchShows(page = 1, append = false) {
 function handleSearchError(error) {
     const resultsDiv = document.getElementById('results');
     if (!resultsDiv) return;
-    
+
     const errorMessage = error.message || 'Unknown error';
     const isNetworkError = errorMessage.includes('fetch') || errorMessage.includes('network');
-    
+
     resultsDiv.innerHTML = `
         <div class="col-span-full text-center py-16 animate-fade-in">
             <div class="inline-flex items-center justify-center w-20 h-20 bg-red-900 bg-opacity-30 rounded-full mb-6">
                 <svg class="w-10 h-10 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                           d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
                 </svg>
             </div>
@@ -169,12 +169,12 @@ function handleSearchError(error) {
                 ${isNetworkError ? 'Connection Problem' : 'Search Error'}
             </h3>
             <p class="text-gray-400 mb-6 max-w-md mx-auto">
-                ${isNetworkError 
-                    ? 'Unable to reach Archive.org. Please check your connection.' 
+                ${isNetworkError
+                    ? 'Unable to reach Archive.org. Please check your connection.'
                     : 'An error occurred while searching. This may be temporary.'}
             </p>
-            <button 
-                onclick="window.retryLastSearch()" 
+            <button
+                onclick="window.retryLastSearch()"
                 class="px-6 py-3 bg-gradient-to-r from-sky-600 to-cyan-600 hover:from-sky-700 hover:to-cyan-700 text-white font-semibold rounded-xl transition-all transform hover:scale-105 shadow-lg">
                 Try Again
             </button>
@@ -183,36 +183,36 @@ function handleSearchError(error) {
 
 window.retryLastSearch = function() {
     if (lastSearchParams) {
-        const { query, yearFrom, yearTo, band, page } = lastSearchParams;
-        
+        const { query, yearFrom, yearTo, category, page } = lastSearchParams;
+
         const searchQueryInput = document.getElementById('searchQuery');
         const yearFromInput = document.getElementById('yearFrom');
         const yearToInput = document.getElementById('yearTo');
-        const bandSelector = document.getElementById('bandSelector');
-        
+        const categorySelector = document.getElementById('categorySelector');
+
         if (searchQueryInput) searchQueryInput.value = query;
         if (yearFromInput) yearFromInput.value = yearFrom;
         if (yearToInput) yearToInput.value = yearTo;
-        if (bandSelector) bandSelector.value = band;
-        
+        if (categorySelector) categorySelector.value = category;
+
         showToast('Retrying search...', 'info');
-        searchShows(page);
+        searchAudiobooks(page);
     }
 };
 
 function updateResultsDisplay(append = false) {
     const resultsDiv = document.getElementById('results');
     if (!resultsDiv) return;
-    
+
     // Always use grid view for books
     resultsDiv.className = 'books-grid';
-    
-    const newHTML = currentResults.map((show, index) => {
-        const card = createBookCard(show);
+
+    const newHTML = currentResults.map((book, index) => {
+        const card = createBookCard(book);
         const delay = append ? 0 : index * 0.03;
         return `<div class="animate-fade-in" style="animation-delay: ${delay}s">${card}</div>`;
     }).join('');
-    
+
     if (append) {
         resultsDiv.insertAdjacentHTML('beforeend', newHTML);
     } else {
@@ -225,29 +225,29 @@ function createBookCard(book) {
     const title = book.title || 'Untitled Audiobook';
     const year = book.year || book.date || '';
     const language = book.language || 'English';
-    
+
     // Get cover image from Archive.org
     const coverUrl = `https://archive.org/services/img/${book.identifier}`;
-    
+
     // Extract runtime if available
     const runtime = book.runtime || '';
-    
+
     // Get subjects for genre tags
-    const subjects = Array.isArray(book.subject) ? book.subject : 
+    const subjects = Array.isArray(book.subject) ? book.subject :
                     typeof book.subject === 'string' ? [book.subject] : [];
     const genreTags = subjects
         .slice(0, 2)
         .filter(s => s && s.length < 20)
         .map(s => s.charAt(0).toUpperCase() + s.slice(1));
-    
+
     return `
         <div class="book-card" onclick="openPlayerPage('${book.identifier}')">
             <div class="book-cover-wrapper">
-                <img src="${coverUrl}" 
-                     alt="${title}" 
+                <img src="${coverUrl}"
+                     alt="${title}"
                      class="book-cover"
                      loading="lazy"
-                     onerror="this.src='data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 200 300\'%3E%3Crect fill=\'%23374151\' width=\'200\' height=\'300\'/%3E%3Ctext x=\'50%25\' y=\'45%25\' dominant-baseline=\'middle\' text-anchor=\'middle\' fill=\'%239ca3af\' font-size=\'48\' font-family=\'system-ui\'%3E%F0%9F%93%96%3C/text%3E%3Ctext x=\'50%25\' y=\'60%25\' dominant-baseline=\'middle\' text-anchor=\'middle\' fill=\'%236b7280\' font-size=\'12\' font-family=\'system-ui\'%3ENo Cover%3C/text%3E%3C/svg%3E'">
+                     onerror="this.src='data:image/svg+xml,%3Csvg xmlns=\\'http://www.w3.org/2000/svg\\' viewBox=\\'0 0 200 300\\'%3E%3Crect fill=\\'%23374151\\' width=\\'200\\' height=\\'300\\'/%3E%3Ctext x=\\'50%25\\' y=\\'45%25\\' dominant-baseline=\\'middle\\' text-anchor=\\'middle\\' fill=\\'%239ca3af\\' font-size=\\'48\\' font-family=\\'system-ui\\'%3E%F0%9F%93%96%3C/text%3E%3Ctext x=\\'50%25\\' y=\\'60%25\\' dominant-baseline=\\'middle\\' text-anchor=\\'middle\\' fill=\\'%236b7280\\' font-size=\\'12\\' font-family=\\'system-ui\\'%3ENo Cover%3C/text%3E%3C/svg%3E'">
                 <div class="book-overlay">
                     <div class="play-button">
                         <svg class="w-8 h-8" fill="currentColor" viewBox="0 0 20 20">
@@ -271,7 +271,7 @@ function createBookCard(book) {
                 <div class="book-meta">
                     ${year ? `<span class="meta-badge year-badge">${year}</span>` : ''}
                     ${language !== 'English' ? `<span class="meta-badge lang-badge">${language}</span>` : ''}
-                    ${genreTags.length > 0 ? genreTags.map(tag => 
+                    ${genreTags.length > 0 ? genreTags.map(tag =>
                         `<span class="meta-badge genre-badge">${tag}</span>`
                     ).join('') : ''}
                 </div>
@@ -300,7 +300,7 @@ function updatePagination(customTotal = null) {
 }
 
 export function changePage(delta) {
-    searchShows(currentPage + delta);
+    searchAudiobooks(currentPage + delta);
     window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
@@ -315,35 +315,35 @@ export function openPlayerPage(identifier) {
 // Infinite scroll setup
 function setupInfiniteScroll() {
     let observer;
-    
+
     const sentinel = document.createElement('div');
     sentinel.id = 'scroll-sentinel';
     sentinel.className = 'h-10';
-    
+
     const resultsDiv = document.getElementById('results');
     if (resultsDiv && resultsDiv.parentElement) {
         resultsDiv.parentElement.appendChild(sentinel);
     }
-    
+
     observer = new IntersectionObserver((entries) => {
         entries.forEach(entry => {
             if (entry.isIntersecting && !isLoadingMore && currentResults.length < totalResults) {
                 isLoadingMore = true;
                 const nextPage = currentPage + 1;
                 const totalPages = Math.ceil(totalResults / resultsPerPage);
-                
+
                 if (nextPage <= totalPages) {
                     showToast('Loading more...', 'info', 1000);
-                    searchShows(nextPage, true);
+                    searchAudiobooks(nextPage, true);
                 }
             }
         });
     }, {
         rootMargin: '200px'
     });
-    
+
     observer.observe(sentinel);
-    
+
     return () => {
         if (observer) observer.disconnect();
     };
@@ -351,19 +351,19 @@ function setupInfiniteScroll() {
 
 export function initSearchPage() {
     console.log('Initializing audiobook search page...');
-    
+
     const searchButton = document.getElementById('searchButton');
     const searchQuery = document.getElementById('searchQuery');
     const yearFrom = document.getElementById('yearFrom');
     const yearTo = document.getElementById('yearTo');
-    const bandSelector = document.getElementById('bandSelector');
+    const categorySelector = document.getElementById('categorySelector');
     const prevPage = document.getElementById('prevPage');
     const nextPage = document.getElementById('nextPage');
 
     // Set default year range
     if (yearFrom && yearTo) {
-        const savedBand = storage.getSelectedBand();
-        const config = getBandConfig(savedBand);
+        const savedCategory = storage.getSelectedCategory();
+        const config = getCategoryConfig(savedCategory);
         if (config && config.yearRange) {
             yearFrom.value = config.yearRange[0];
             yearTo.value = config.yearRange[1];
@@ -373,7 +373,7 @@ export function initSearchPage() {
     if (searchButton) {
         searchButton.addEventListener('click', (e) => {
             e.preventDefault();
-            searchShows(1);
+            searchAudiobooks(1);
         });
     }
 
@@ -381,30 +381,30 @@ export function initSearchPage() {
         searchQuery.addEventListener('keydown', (e) => {
             if (e.key === 'Enter') {
                 e.preventDefault();
-                searchShows(1);
+                searchAudiobooks(1);
             }
         });
     }
 
-    if (yearFrom) yearFrom.addEventListener('change', () => searchShows(1));
-    if (yearTo) yearTo.addEventListener('change', () => searchShows(1));
-    
-    if (bandSelector) {
-        const savedBand = storage.getSelectedBand();
-        if (savedBand && bandSelector.querySelector(`option[value="${savedBand}"]`)) {
-            bandSelector.value = savedBand;
+    if (yearFrom) yearFrom.addEventListener('change', () => searchAudiobooks(1));
+    if (yearTo) yearTo.addEventListener('change', () => searchAudiobooks(1));
+
+    if (categorySelector) {
+        const savedCategory = storage.getSelectedCategory();
+        if (savedCategory && categorySelector.querySelector(`option[value="${savedCategory}"]`)) {
+            categorySelector.value = savedCategory;
         }
-        
-        bandSelector.addEventListener('change', function() {
-            storage.setSelectedBand(this.value);
+
+        categorySelector.addEventListener('change', function() {
+            storage.setSelectedCategory(this.value);
             currentPage = 1;
-            
-            const config = getBandConfig(this.value);
+
+            const config = getCategoryConfig(this.value);
             if (yearFrom && yearTo && config && config.yearRange) {
                 yearFrom.value = config.yearRange[0];
                 yearTo.value = config.yearRange[1];
             }
-            
+
             // Clear search for special search types
             if (this.value === 'Author_Search' || this.value === 'Title_Search' || this.value === 'Custom') {
                 if (searchQuery) {
@@ -412,8 +412,8 @@ export function initSearchPage() {
                     searchQuery.placeholder = config.placeholder || 'Enter search...';
                 }
             }
-            
-            searchShows(1);
+
+            searchAudiobooks(1);
         });
     }
 
@@ -421,7 +421,7 @@ export function initSearchPage() {
     filterButtons.forEach(button => {
         button.addEventListener('click', function() {
             const filter = this.dataset.filter;
-            
+
             if (activeFilters.has(filter)) {
                 activeFilters.delete(filter);
                 this.classList.remove('active');
@@ -429,15 +429,15 @@ export function initSearchPage() {
                 activeFilters.add(filter);
                 this.classList.add('active');
             }
-            
-            searchShows(1);
+
+            searchAudiobooks(1);
         });
     });
-    
+
     // Keyboard shortcuts
     document.addEventListener('keydown', (e) => {
         if (e.target.matches('input, select, textarea')) return;
-        
+
         switch(e.key.toLowerCase()) {
             case '/':
                 e.preventDefault();
@@ -445,7 +445,7 @@ export function initSearchPage() {
                 break;
             case 'r':
                 e.preventDefault();
-                const randomBtn = document.getElementById('randomShow');
+                const randomBtn = document.getElementById('randomBook');
                 if (randomBtn) randomBtn.click();
                 break;
         }
@@ -458,9 +458,9 @@ export function initSearchPage() {
     setupInfiniteScroll();
 
     console.log('Running initial search...');
-    searchShows(1);
+    searchAudiobooks(1);
 }
 
 window.openPlayerPage = openPlayerPage;
-window.searchShows = searchShows;
+window.searchAudiobooks = searchAudiobooks;
 window.changePage = changePage;
