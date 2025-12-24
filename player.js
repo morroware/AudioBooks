@@ -39,8 +39,8 @@ export class Player {
             return false;
         }
 
-        const showTitleEl = document.getElementById('show-title');
-        if (showTitleEl) showTitleEl.textContent = 'Loading Audiobook...';
+        const bookTitleEl = document.getElementById('book-title');
+        if (bookTitleEl) bookTitleEl.textContent = 'Loading Audiobook...';
 
         try {
             const resp = await fetch(`https://archive.org/metadata/${identifier}`);
@@ -61,7 +61,7 @@ export class Player {
             }
 
             document.title = `${authorName}: ${data.metadata.title || 'Audiobook'}`;
-            if (showTitleEl) showTitleEl.textContent = data.metadata.title || 'Unknown Book';
+            if (bookTitleEl) bookTitleEl.textContent = data.metadata.title || 'Unknown Book';
             
             const archiveLink = document.getElementById('archive-link');
             if (archiveLink) archiveLink.href = `https://archive.org/details/${identifier}`;

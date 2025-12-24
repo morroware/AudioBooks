@@ -1,13 +1,13 @@
-// storage.js - Centralized storage management
+// storage.js - Centralized storage management for LibriVox Audiobooks
 
 class StorageManager {
     constructor() {
-        this.prefix = 'tapeFinder_';
+        this.prefix = 'librivox_';
         this.initStorage();
     }
 
     initStorage() {
-        // Validate and initialize recently viewed
+        // Validate and initialize recently viewed audiobooks
         try {
             const raw = localStorage.getItem(this.prefix + 'recentlyViewed') || '[]';
             const parsed = JSON.parse(raw);
@@ -18,7 +18,7 @@ class StorageManager {
         }
     }
 
-    // Get recently viewed shows
+    // Get recently viewed audiobooks
     getRecentlyViewed() {
         try {
             const raw = localStorage.getItem(this.prefix + 'recentlyViewed') || '[]';
@@ -29,22 +29,22 @@ class StorageManager {
         }
     }
 
-    // Update recently viewed shows
-    updateRecentlyViewed(show) {
-        if (!show || !show.identifier) {
-            console.error('Invalid show data for recently viewed');
+    // Update recently viewed audiobooks
+    updateRecentlyViewed(audiobook) {
+        if (!audiobook || !audiobook.identifier) {
+            console.error('Invalid audiobook data for recently viewed');
             return;
         }
 
         let stored = this.getRecentlyViewed();
-        
+
         // Remove if already exists, then add to front
-        stored = stored.filter(s => s.identifier !== show.identifier);
+        stored = stored.filter(s => s.identifier !== audiobook.identifier);
         stored.unshift({
-            identifier: show.identifier,
-            title: show.title || 'Unknown Show'
+            identifier: audiobook.identifier,
+            title: audiobook.title || 'Unknown Audiobook'
         });
-        
+
         // Keep only last 5
         if (stored.length > 5) stored.pop();
 
@@ -53,21 +53,21 @@ class StorageManager {
         } catch (e) {
             console.error('Error saving recentlyViewed:', e);
         }
-        
+
         return stored;
     }
 
-    // Get selected band
-    getSelectedBand() {
-        return localStorage.getItem(this.prefix + 'selectedBand') || 'GratefulDead';
+    // Get selected category
+    getSelectedCategory() {
+        return localStorage.getItem(this.prefix + 'selectedCategory') || 'AllLibriVox';
     }
 
-    // Save selected band
-    setSelectedBand(band) {
+    // Save selected category
+    setSelectedCategory(category) {
         try {
-            localStorage.setItem(this.prefix + 'selectedBand', band);
+            localStorage.setItem(this.prefix + 'selectedCategory', category);
         } catch (e) {
-            console.error('Error saving selected band:', e);
+            console.error('Error saving selected category:', e);
         }
     }
 
