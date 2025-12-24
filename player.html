@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Audiobook Player - LibriVox</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="styles.css">
+  <meta name="description" content="Listen to free audiobooks from LibriVox">
+  
+  <style>
+    .player-glow {
+      box-shadow: 0 0 60px rgba(14, 165, 233, 0.3), 
+                  0 20px 40px -10px rgba(0, 0, 0, 0.4);
+    }
+    
+    .waveform-container {
+      background: radial-gradient(ellipse at center, rgba(14, 165, 233, 0.2) 0%, rgba(0, 0, 0, 0.9) 70%);
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .waveform-container::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(90deg, 
+        transparent 0%, 
+        rgba(14, 165, 233, 0.1) 50%, 
+        transparent 100%);
+      animation: waveformPulse 3s ease-in-out infinite;
+    }
+    
+    @keyframes waveformPulse {
+      0%, 100% { opacity: 0.3; }
+      50% { opacity: 0.6; }
+    }
+    
+    .chapter-item {
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+    }
+    
+    .chapter-item::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 4px;
+      background: linear-gradient(135deg, #0ea5e9, #06b6d4);
+      opacity: 0;
+      transition: opacity 0.3s;
+      border-radius: 0 4px 4px 0;
+    }
+    
+    .chapter-item:hover::before {
+      opacity: 0.5;
+    }
+    
+    .chapter-item.active::before {
+      opacity: 1;
+    }
+    
+    .chapter-item.active {
+      background: linear-gradient(90deg, rgba(14, 165, 233, 0.15), transparent);
+      transform: translateX(6px);
+    }
+    
+    .speed-btn {
+      transition: all 0.2s;
+    }
+    
+    .speed-btn.active {
+      background: linear-gradient(135deg, #0ea5e9, #06b6d4);
+      color: white;
+      transform: scale(1.05);
+    }
+  </style>
+</head>
+<body class="bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 text-gray-100 min-h-screen">
+  
+  <!-- Enhanced Header -->
+  <header class="gradient-bg shadow-2xl relative overflow-hidden border-b border-sky-500/20">
+    <div class="absolute inset-0 bg-black/20"></div>
+    <div class="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-white/20 to-transparent"></div>
+    
+    <div class="max-w-6xl mx-auto px-4 py-6 md:py-10 relative z-10">
+      <div class="flex items-center justify-between">
+        <a href="index.html" class="flex items-center gap-3 text-white/80 hover:text-white transition-colors group">
+          <svg class="w-5 h-5 md:w-6 md:h-6 group-hover:-translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+          </svg>
+          <span class="font-semibold hidden sm:inline">Back to Library</span>
+          <span class="font-semibold sm:hidden">Back</span>
+        </a>
+        
+        <div class="text-center flex-1 mx-4">
+          <h1 id="show-title" class="text-xl md:text-3xl font-bold text-white leading-tight">Loading Audiobook...</h1>
+        </div>
+        
+        <div class="w-24 md:w-32"></div>
+      </div>
+    </div>
+    
+    <div class="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-white/20 to-transparent"></div>
+  </header>
+
+  <main class="max-w-6xl mx-auto px-3 md:px-6 lg:px-8 py-6 md:py-10 space-y-6 md:space-y-8">
+    
+    <!-- Main Player Card -->
+    <div id="player-wrapper" class="glass-morphism rounded-2xl md:rounded-3xl p-5 md:p-8 player-glow animate-fade-in-up">
+      
+      <!-- Loading Placeholder -->
+      <div id="loading-placeholder" class="text-center py-16 md:py-20">
+        <div class="inline-flex items-center justify-center w-20 h-20 md:w-24 md:h-24 bg-gray-800/50 rounded-full mb-6">
+          <div class="relative w-12 h-12 md:w-14 md:h-14">
+            <div class="absolute inset-0 rounded-full border-4 border-sky-600 border-t-transparent animate-spin"></div>
+            <div class="absolute inset-2 rounded-full border-4 border-cyan-600 border-t-transparent animate-spin" style="animation-direction: reverse; animation-duration: 1.5s;"></div>
+            <div class="absolute inset-0 rounded-full bg-sky-600/20 blur-xl animate-pulse"></div>
+          </div>
+        </div>
+        <p class="text-base md:text-lg text-gray-300 font-semibold">Loading audiobook player...</p>
+        <p class="text-sm text-gray-500 mt-2">Preparing your listening experience</p>
+      </div>
+
+      <!-- Player Interface -->
+      <div id="custom-player" class="hidden space-y-6 md:space-y-8">
+        
+        <!-- Chapter List -->
+        <details class="space-y-4" open>
+          <summary class="flex items-center justify-between cursor-pointer group">
+            <h3 class="text-lg md:text-xl font-bold text-white flex items-center gap-3">
+              <div class="w-10 h-10 rounded-xl bg-sky-600/20 flex items-center justify-center group-hover:bg-sky-600/30 transition-colors">
+                <svg class="w-5 h-5 text-sky-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3" />
+                </svg>
+              </div>
+              <span>Chapters</span>
+            </h3>
+            <span id="playlistInfo" class="text-sm text-gray-500 font-semibold bg-gray-800/50 px-4 py-2 rounded-full"></span>
+          </summary>
+          
+          <div id="playlistContainer"
+               class="max-h-56 md:max-h-80 overflow-y-auto bg-gray-900/40 rounded-xl border border-gray-700/50 backdrop-blur-sm"
+               role="list"
+               aria-label="Chapter list"></div>
+        </details>
+
+        <!-- Enhanced Waveform Visualization -->
+        <div class="waveform-container rounded-xl border border-sky-500/30 relative overflow-hidden">
+          <canvas id="visualizerCanvas" class="w-full h-28 md:h-40"></canvas>
+          <div class="absolute inset-0 pointer-events-none bg-gradient-to-t from-black/40 to-transparent"></div>
+        </div>
+
+        <!-- Now Playing Info -->
+        <div class="text-center space-y-2 py-2">
+          <div class="inline-flex items-center gap-2 px-4 py-1.5 bg-sky-600/20 rounded-full text-xs md:text-sm text-sky-400 font-bold uppercase tracking-wide">
+            <div class="w-2 h-2 rounded-full bg-sky-400 animate-pulse"></div>
+            Now Playing
+          </div>
+          <h2 id="trackTitle" class="text-xl md:text-3xl font-bold text-white leading-tight px-4 min-h-[2.5rem]"></h2>
+          <div id="trackInfo" class="text-sm md:text-base text-gray-400 font-medium"></div>
+        </div>
+
+        <!-- Enhanced Progress Bar -->
+        <div class="space-y-3">
+          <div class="flex items-center gap-4">
+            <span id="currentTime" class="text-sm md:text-base font-mono font-bold text-gray-300 w-14 md:w-16 text-right">0:00</span>
+            <div class="relative flex-1 group">
+              <div class="h-2 md:h-3 bg-gray-800/50 rounded-full overflow-hidden backdrop-blur-sm border border-gray-700/30">
+                <div id="bufferBar" class="absolute h-full bg-gray-700/60 progress-bar" style="width: 0%"></div>
+                <div id="progressBar" class="absolute h-full bg-gradient-to-r from-sky-600 to-cyan-600 progress-bar shadow-lg" style="width: 0%"></div>
+              </div>
+              <input type="range"
+                     id="trackProgress"
+                     class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+                     min="0"
+                     max="100"
+                     value="0"
+                     aria-label="Seek progress">
+            </div>
+            <span id="totalTime" class="text-sm md:text-base font-mono font-bold text-gray-300 w-14 md:w-16">0:00</span>
+          </div>
+        </div>
+
+        <!-- Main Controls -->
+        <div class="flex flex-col items-center gap-6 md:gap-8">
+          
+          <!-- Primary Playback Controls -->
+          <div class="flex items-center justify-center gap-4 md:gap-6 w-full">
+            
+            <button id="shuffleButton" 
+                    class="control-btn p-3 md:p-4 text-gray-400 hover:text-white rounded-xl hover:bg-gray-800/50 transition-all" 
+                    title="Shuffle Chapters" 
+                    aria-label="Toggle shuffle">
+              <svg class="w-5 h-5 md:w-6 md:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6h-12m0 0l4 4m-4-4l4-4" />
+              </svg>
+            </button>
+
+            <button id="prevTrack" 
+                    class="control-btn p-4 md:p-5 text-white hover:bg-gray-800/50 rounded-2xl transition-all" 
+                    title="Previous Chapter" 
+                    aria-label="Previous chapter">
+              <svg class="w-6 h-6 md:w-7 md:h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+              </svg>
+            </button>
+
+            <button id="playPause"
+                    class="control-btn w-16 h-16 md:w-20 md:h-20 rounded-full bg-gradient-to-br from-sky-600 to-cyan-600 hover:from-sky-700 hover:to-cyan-700 shadow-2xl flex items-center justify-center transition-all relative group"
+                    title="Play/Pause" 
+                    aria-label="Play or pause">
+              <div class="absolute inset-0 rounded-full bg-gradient-to-br from-sky-600 to-cyan-600 opacity-0 group-hover:opacity-100 blur-xl transition-opacity"></div>
+              <svg id="playIcon" class="w-8 h-8 md:w-10 md:h-10 text-white relative z-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            </button>
+
+            <button id="nextTrack" 
+                    class="control-btn p-4 md:p-5 text-white hover:bg-gray-800/50 rounded-2xl transition-all" 
+                    title="Next Chapter" 
+                    aria-label="Next chapter">
+              <svg class="w-6 h-6 md:w-7 md:h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+              </svg>
+            </button>
+
+            <button id="loopButton" 
+                    class="control-btn p-3 md:p-4 text-gray-400 hover:text-white rounded-xl hover:bg-gray-800/50 transition-all" 
+                    title="Loop Mode" 
+                    aria-label="Toggle loop">
+              <svg class="w-5 h-5 md:w-6 md:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+              </svg>
+            </button>
+          </div>
+
+          <!-- Secondary Controls Row -->
+          <div class="flex items-center gap-4 md:gap-6 w-full max-w-2xl">
+            
+            <!-- Volume Control -->
+            <div class="flex items-center gap-3 flex-1 max-w-xs">
+              <button id="muteButton" class="control-btn p-2 text-gray-400 hover:text-white flex-shrink-0" aria-label="Mute">
+                <svg id="volumeIcon" class="w-5 h-5 md:w-6 md:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" />
+                </svg>
+              </button>
+              <div class="relative flex-1">
+                <div class="h-2 md:h-2.5 bg-gray-800/50 rounded-full overflow-hidden border border-gray-700/30">
+                  <div id="volumeBar" class="h-full bg-gradient-to-r from-sky-600 to-cyan-600 progress-bar" style="width: 100%"></div>
+                </div>
+                <input type="range" 
+                       id="volumeControl"
+                       class="absolute inset-0 w-full opacity-0 cursor-pointer"
+                       min="0" 
+                       max="100" 
+                       value="100" 
+                       aria-label="Volume control">
+              </div>
+            </div>
+
+            <!-- Playback Speed -->
+            <div class="flex items-center gap-2">
+              <span class="text-xs text-gray-500 font-semibold uppercase hidden md:inline">Speed:</span>
+              <div class="flex gap-1 bg-gray-900/50 p-1 rounded-lg border border-gray-700/50">
+                <button class="speed-btn px-3 py-1.5 text-xs font-bold rounded-md text-gray-400 hover:bg-gray-700/50" data-speed="0.75">0.75×</button>
+                <button class="speed-btn px-3 py-1.5 text-xs font-bold rounded-md text-gray-400 hover:bg-gray-700/50 active" data-speed="1">1×</button>
+                <button class="speed-btn px-3 py-1.5 text-xs font-bold rounded-md text-gray-400 hover:bg-gray-700/50" data-speed="1.25">1.25×</button>
+                <button class="speed-btn px-3 py-1.5 text-xs font-bold rounded-md text-gray-400 hover:bg-gray-700/50" data-speed="1.5">1.5×</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <audio id="audioElement" class="hidden" crossorigin="anonymous"></audio>
+      </div>
+    </div>
+
+    <!-- Book Details Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 animate-fade-in-up" style="animation-delay: 0.1s;">
+      
+      <!-- Book Information -->
+      <details id="show-info" class="glass-morphism-light rounded-2xl p-6 md:p-8 shadow-xl" open>
+        <summary class="text-lg md:text-xl font-bold mb-5 text-gray-100 cursor-pointer flex items-center gap-3 hover:text-sky-400 transition-colors">
+          <div class="w-8 h-8 rounded-lg bg-sky-600/20 flex items-center justify-center">
+            <svg class="w-5 h-5 text-sky-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+          </div>
+          <span>Book Details</span>
+        </summary>
+      </details>
+      
+      <!-- Additional Information -->
+      <details id="additional-info" class="glass-morphism-light rounded-2xl p-6 md:p-8 shadow-xl">
+        <summary class="text-lg md:text-xl font-bold mb-5 text-gray-100 cursor-pointer flex items-center gap-3 hover:text-cyan-400 transition-colors">
+          <div class="w-8 h-8 rounded-lg bg-cyan-600/20 flex items-center justify-center">
+            <svg class="w-5 h-5 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+            </svg>
+          </div>
+          <span>About This Book</span>
+        </summary>
+      </details>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="flex flex-col sm:flex-row justify-center gap-4 animate-fade-in-up" style="animation-delay: 0.2s;">
+      <a id="archive-link" 
+         href="#" 
+         target="_blank" 
+         rel="noopener noreferrer"
+         class="btn-primary inline-flex items-center justify-center px-6 py-4 rounded-xl font-bold text-base shadow-lg">
+        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+        </svg>
+        View on Archive.org
+      </a>
+      <a href="index.html"
+         class="btn-secondary inline-flex items-center justify-center px-6 py-4 rounded-xl font-bold text-base">
+        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+        </svg>
+        Back to Library
+      </a>
+    </div>
+
+    <!-- Keyboard Shortcuts -->
+    <details class="glass-morphism-light rounded-2xl p-6 text-center text-sm animate-fade-in-up" style="animation-delay: 0.3s;">
+      <summary class="cursor-pointer font-bold text-indigo-400 hover:text-indigo-300 transition-colors flex items-center justify-center gap-2">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
+        </svg>
+        <span>Keyboard Shortcuts</span>
+      </summary>
+      <div class="mt-4 grid grid-cols-2 md:grid-cols-3 gap-3 text-left">
+        <div class="flex items-center gap-2">
+          <kbd>Space</kbd>
+          <span class="text-gray-400">Play/Pause</span>
+        </div>
+        <div class="flex items-center gap-2">
+          <kbd>←/→</kbd>
+          <span class="text-gray-400">Skip 5s</span>
+        </div>
+        <div class="flex items-center gap-2">
+          <kbd>J/L</kbd>
+          <span class="text-gray-400">Skip 10s</span>
+        </div>
+        <div class="flex items-center gap-2">
+          <kbd>M</kbd>
+          <span class="text-gray-400">Mute</span>
+        </div>
+        <div class="flex items-center gap-2">
+          <kbd>N</kbd>
+          <span class="text-gray-400">Next</span>
+        </div>
+        <div class="flex items-center gap-2">
+          <kbd>P</kbd>
+          <span class="text-gray-400">Previous</span>
+        </div>
+      </div>
+    </details>
+
+  </main>
+
+  <!-- Scripts -->
+  <script type="module" src="main.js"></script>
+  
+  <!-- Playback Speed Control -->
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const speedButtons = document.querySelectorAll('.speed-btn');
+      speedButtons.forEach(btn => {
+        btn.addEventListener('click', function() {
+          const speed = parseFloat(this.dataset.speed);
+          const audio = document.getElementById('audioElement');
+          
+          if (audio && window.player) {
+            audio.playbackRate = speed;
+            window.player.playbackRate = speed;
+            
+            // Update active state
+            speedButtons.forEach(b => b.classList.remove('active'));
+            this.classList.add('active');
+          }
+        });
+      });
+    });
+  </script>
+</body>
+</html>

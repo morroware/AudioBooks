@@ -1,0 +1,1013 @@
+/* ================================================================
+   LIBRIVOX AUDIOBOOK PLATFORM - PROFESSIONAL UI/UX
+   Enhanced Design System with Modern Aesthetics
+   ================================================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Playfair+Display:wght@600;700;800&display=swap');
+
+/* ================================================================
+   DESIGN TOKENS & CSS VARIABLES
+   ================================================================ */
+
+:root {
+  /* Professional Color Palette - Slate/Charcoal Theme */
+  --bg-primary: #0f1419;
+  --bg-secondary: #1a1f2e;
+  --bg-tertiary: #252d3d;
+  --bg-elevated: #2d3548;
+  --bg-card: #1e2433;
+  
+  --accent-primary: #0ea5e9;
+  --accent-secondary: #06b6d4;
+  --accent-tertiary: #3b82f6;
+  --accent-hover: #0284c7;
+  --accent-light: #38bdf8;
+  --accent-gradient: linear-gradient(135deg, #0ea5e9 0%, #06b6d4 50%, #3b82f6 100%);
+  --accent-glow: rgba(14, 165, 233, 0.4);
+  
+  --text-primary: #f9fafb;
+  --text-secondary: #d1d5db;
+  --text-muted: #9ca3af;
+  --text-dimmed: #6b7280;
+  
+  --success: #10b981;
+  --success-light: #34d399;
+  --warning: #f59e0b;
+  --warning-light: #fbbf24;
+  --error: #ef4444;
+  --error-light: #f87171;
+  --info: #3b82f6;
+  
+  /* Spacing System */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.25rem;
+  --space-6: 1.5rem;
+  --space-8: 2rem;
+  --space-10: 2.5rem;
+  --space-12: 3rem;
+  --space-16: 4rem;
+  
+  /* Shadows - Depth System */
+  --shadow-xs: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-sm: 0 2px 4px -1px rgba(0, 0, 0, 0.1);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.2), 0 2px 4px -1px rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.3), 0 4px 6px -2px rgba(0, 0, 0, 0.2);
+  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.4), 0 10px 10px -5px rgba(0, 0, 0, 0.3);
+  --shadow-2xl: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+  --shadow-glow: 0 0 30px var(--accent-glow);
+  --shadow-glow-strong: 0 0 50px var(--accent-glow), 0 0 100px rgba(99, 102, 241, 0.2);
+  
+  /* Border Radius */
+  --radius-sm: 0.375rem;
+  --radius-md: 0.5rem;
+  --radius-lg: 0.75rem;
+  --radius-xl: 1rem;
+  --radius-2xl: 1.5rem;
+  --radius-full: 9999px;
+  
+  /* Transitions */
+  --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-base: 300ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-slow: 500ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-bounce: 500ms cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  
+  /* Typography */
+  --font-primary: 'Inter', system-ui, -apple-system, sans-serif;
+  --font-display: 'Playfair Display', Georgia, serif;
+  
+  /* Z-Index Scale */
+  --z-base: 1;
+  --z-dropdown: 10;
+  --z-sticky: 20;
+  --z-fixed: 30;
+  --z-modal-backdrop: 40;
+  --z-modal: 50;
+  --z-popover: 60;
+  --z-tooltip: 70;
+}
+
+/* ================================================================
+   BASE STYLES
+   ================================================================ */
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  font-family: var(--font-primary);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  overflow-x: hidden;
+  line-height: 1.6;
+}
+
+/* Selection Styles */
+::selection {
+  background-color: var(--accent-primary);
+  color: white;
+}
+
+::-moz-selection {
+  background-color: var(--accent-primary);
+  color: white;
+}
+
+/* ================================================================
+   ENHANCED BOOK GRID LAYOUT
+   ================================================================ */
+
+.books-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+  gap: var(--space-8);
+  padding: 0;
+  min-height: 400px;
+}
+
+@media (min-width: 640px) {
+  .books-grid {
+    grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+    gap: var(--space-10);
+  }
+}
+
+@media (min-width: 1024px) {
+  .books-grid {
+    grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+  }
+}
+
+@media (min-width: 1280px) {
+  .books-grid {
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: var(--space-12);
+  }
+}
+
+/* ================================================================
+   PREMIUM BOOK CARD DESIGN
+   ================================================================ */
+
+.book-card {
+  cursor: pointer;
+  transition: transform var(--transition-base);
+  animation: fadeInUp 0.5s ease-out backwards;
+  position: relative;
+  isolation: isolate;
+}
+
+.book-card:hover {
+  transform: translateY(-12px);
+  z-index: 10;
+}
+
+.book-cover-wrapper {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 2/3;
+  border-radius: var(--radius-xl);
+  overflow: hidden;
+  box-shadow: var(--shadow-lg);
+  transition: all var(--transition-base);
+  background: linear-gradient(135deg, var(--bg-tertiary) 0%, var(--bg-secondary) 100%);
+}
+
+.book-card:hover .book-cover-wrapper {
+  box-shadow: var(--shadow-2xl), var(--shadow-glow);
+  transform: scale(1.02);
+}
+
+.book-card:hover .book-cover-wrapper::before {
+  content: '';
+  position: absolute;
+  inset: -2px;
+  background: var(--accent-gradient);
+  border-radius: var(--radius-xl);
+  z-index: -1;
+  opacity: 0.6;
+  filter: blur(12px);
+  animation: pulseGlow 3s ease-in-out infinite;
+}
+
+@keyframes pulseGlow {
+  0%, 100% { opacity: 0.6; }
+  50% { opacity: 1; }
+}
+
+.book-cover {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform var(--transition-slow);
+  backface-visibility: hidden;
+}
+
+.book-card:hover .book-cover {
+  transform: scale(1.08);
+  filter: brightness(1.1);
+}
+
+/* Enhanced Overlay */
+.book-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to top,
+    rgba(10, 14, 26, 0.95) 0%,
+    rgba(10, 14, 26, 0.7) 40%,
+    rgba(10, 14, 26, 0.3) 70%,
+    transparent 100%
+  );
+  opacity: 0;
+  transition: opacity var(--transition-base);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-4);
+  backdrop-filter: blur(8px);
+}
+
+.book-card:hover .book-overlay {
+  opacity: 1;
+}
+
+/* Premium Play Button */
+.play-button {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  background: var(--accent-gradient);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  box-shadow: var(--shadow-glow);
+  transform: scale(0.7);
+  transition: all var(--transition-base);
+  margin-bottom: var(--space-4);
+  position: relative;
+}
+
+.play-button::before {
+  content: '';
+  position: absolute;
+  inset: -4px;
+  background: var(--accent-gradient);
+  border-radius: 50%;
+  opacity: 0.3;
+  filter: blur(8px);
+  z-index: -1;
+}
+
+.book-card:hover .play-button {
+  transform: scale(1);
+  box-shadow: var(--shadow-glow-strong);
+}
+
+.play-button:hover {
+  transform: scale(1.1);
+}
+
+.play-button svg {
+  width: 32px;
+  height: 32px;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+}
+
+/* Overlay Info */
+.overlay-info {
+  text-align: center;
+  margin-top: auto;
+  width: 100%;
+  transform: translateY(20px);
+  transition: transform var(--transition-base);
+}
+
+.book-card:hover .overlay-info {
+  transform: translateY(0);
+}
+
+.overlay-author {
+  font-size: 0.8125rem;
+  font-weight: 700;
+  color: white;
+  margin-bottom: var(--space-2);
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.8);
+  letter-spacing: 0.025em;
+  text-transform: uppercase;
+}
+
+.overlay-runtime {
+  font-size: 0.6875rem;
+  color: var(--text-secondary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  font-weight: 500;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8);
+}
+
+/* ================================================================
+   BOOK INFO SECTION
+   ================================================================ */
+
+.book-info {
+  padding: var(--space-4) var(--space-2) 0;
+}
+
+.book-title {
+  font-size: 0.9375rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0 0 var(--space-2) 0;
+  line-height: 1.35;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  transition: color var(--transition-fast);
+  min-height: 2.5em;
+  letter-spacing: -0.01em;
+}
+
+.book-card:hover .book-title {
+  color: var(--accent-light);
+}
+
+.book-author {
+  font-size: 0.8125rem;
+  color: var(--text-muted);
+  margin: 0 0 var(--space-3) 0;
+  line-height: 1.3;
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  font-weight: 500;
+}
+
+/* Enhanced Meta Badges */
+.book-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin-top: var(--space-3);
+}
+
+.meta-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  padding: var(--space-1) var(--space-3);
+  border-radius: var(--radius-full);
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  transition: all var(--transition-fast);
+  backdrop-filter: blur(8px);
+}
+
+.year-badge {
+  background: rgba(14, 165, 233, 0.15);
+  color: var(--accent-light);
+  border: 1px solid rgba(14, 165, 233, 0.3);
+}
+
+.year-badge:hover {
+  background: rgba(14, 165, 233, 0.25);
+  transform: translateY(-2px);
+}
+
+.lang-badge {
+  background: rgba(6, 182, 212, 0.15);
+  color: #22d3ee;
+  border: 1px solid rgba(6, 182, 212, 0.3);
+}
+
+.lang-badge:hover {
+  background: rgba(6, 182, 212, 0.25);
+  transform: translateY(-2px);
+}
+
+.genre-badge {
+  background: rgba(34, 197, 94, 0.15);
+  color: #4ade80;
+  border: 1px solid rgba(34, 197, 94, 0.3);
+}
+
+.genre-badge:hover {
+  background: rgba(34, 197, 94, 0.25);
+  transform: translateY(-2px);
+}
+
+/* ================================================================
+   GLASSMORPHISM & CARD EFFECTS
+   ================================================================ */
+
+.glass-morphism {
+  background: rgba(26, 31, 53, 0.8);
+  backdrop-filter: blur(24px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: var(--shadow-xl);
+}
+
+.glass-morphism-light {
+  background: rgba(39, 49, 71, 0.6);
+  backdrop-filter: blur(16px) saturate(150%);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* ================================================================
+   ENHANCED GRADIENTS
+   ================================================================ */
+
+.gradient-bg {
+  background: linear-gradient(135deg, #0ea5e9 0%, #06b6d4 40%, #3b82f6 100%);
+  background-size: 200% 200%;
+  animation: gradientShift 15s ease infinite;
+  position: relative;
+}
+
+.gradient-bg::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 30% 50%, rgba(6, 182, 212, 0.3) 0%, transparent 50%),
+              radial-gradient(circle at 70% 50%, rgba(59, 130, 246, 0.3) 0%, transparent 50%);
+  animation: gradientPulse 8s ease-in-out infinite;
+}
+
+@keyframes gradientShift {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+
+@keyframes gradientPulse {
+  0%, 100% { opacity: 0.5; }
+  50% { opacity: 1; }
+}
+
+/* ================================================================
+   ENHANCED SEARCH & FILTERS
+   ================================================================ */
+
+.search-glow:focus {
+  box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.4),
+              0 0 20px rgba(14, 165, 233, 0.2);
+  border-color: var(--accent-primary);
+}
+
+.filter-chip {
+  transition: all var(--transition-base);
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+}
+
+.filter-chip::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--accent-gradient);
+  opacity: 0;
+  transition: opacity var(--transition-base);
+}
+
+.filter-chip:hover::before {
+  opacity: 0.1;
+}
+
+.filter-chip:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-md);
+}
+
+.filter-chip.active {
+  background: var(--accent-gradient);
+  border-color: transparent;
+  color: white;
+  box-shadow: var(--shadow-glow);
+  transform: translateY(-3px);
+}
+
+.filter-chip.active::before {
+  opacity: 0;
+}
+
+/* View Toggle Buttons */
+.view-btn {
+  transition: all var(--transition-base);
+  position: relative;
+}
+
+.view-btn::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--accent-gradient);
+  opacity: 0;
+  transition: opacity var(--transition-base);
+  border-radius: inherit;
+}
+
+.view-btn:hover::before {
+  opacity: 0.1;
+}
+
+.view-btn.active::before {
+  opacity: 1;
+}
+
+/* ================================================================
+   PLAYER ENHANCEMENTS
+   ================================================================ */
+
+#waveform {
+  background: radial-gradient(ellipse at center, rgba(14, 165, 233, 0.15) 0%, rgba(0, 0, 0, 0.9) 70%);
+  position: relative;
+  border: 1px solid rgba(14, 165, 233, 0.2);
+}
+
+#visualizerCanvas {
+  filter: drop-shadow(0 0 12px rgba(14, 165, 233, 0.4));
+}
+
+.control-btn {
+  transition: all var(--transition-base);
+  cursor: pointer;
+  position: relative;
+}
+
+.control-btn::after {
+  content: '';
+  position: absolute;
+  inset: -8px;
+  border-radius: 50%;
+  background: var(--accent-gradient);
+  opacity: 0;
+  transition: opacity var(--transition-fast);
+  z-index: -1;
+  filter: blur(12px);
+}
+
+.control-btn:hover::after {
+  opacity: 0.4;
+}
+
+.control-btn:hover {
+  transform: scale(1.15);
+}
+
+.control-btn:active {
+  transform: scale(0.95);
+}
+
+/* Main Play/Pause Button */
+#playPause {
+  box-shadow: var(--shadow-glow);
+  position: relative;
+}
+
+#playPause::before {
+  content: '';
+  position: absolute;
+  inset: -6px;
+  background: var(--accent-gradient);
+  border-radius: 50%;
+  opacity: 0.3;
+  filter: blur(16px);
+  z-index: -1;
+  animation: playButtonPulse 3s ease-in-out infinite;
+}
+
+@keyframes playButtonPulse {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 0.3;
+  }
+  50% {
+    transform: scale(1.2);
+    opacity: 0.6;
+  }
+}
+
+.progress-bar {
+  transition: width 0.1s linear;
+  position: relative;
+}
+
+.progress-bar::after {
+  content: '';
+  position: absolute;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 8px;
+  height: 8px;
+  background: white;
+  border-radius: 50%;
+  box-shadow: 0 0 8px rgba(255, 255, 255, 0.8);
+}
+
+/* Playlist Enhancements */
+.playlist-item {
+  transition: all var(--transition-base);
+  cursor: pointer;
+  border-radius: var(--radius-md);
+  position: relative;
+}
+
+.playlist-item::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  background: var(--accent-gradient);
+  opacity: 0;
+  transition: opacity var(--transition-base);
+  border-radius: var(--radius-sm);
+}
+
+.playlist-item:hover {
+  background: rgba(14, 165, 233, 0.1);
+  transform: translateX(4px);
+}
+
+.playlist-item:hover::before {
+  opacity: 0.5;
+}
+
+.playlist-item.active {
+  background: linear-gradient(90deg, rgba(14, 165, 233, 0.25), transparent);
+  transform: translateX(4px);
+}
+
+.playlist-item.active::before {
+  opacity: 1;
+}
+
+/* ================================================================
+   ANIMATIONS
+   ================================================================ */
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(30px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slideDown {
+  from {
+    transform: translateY(-30px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes scaleIn {
+  from {
+    transform: scale(0.9);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.5s ease-out;
+}
+
+.animate-fade-in-up {
+  animation: fadeInUp 0.6s ease-out backwards;
+}
+
+.animate-slide-up {
+  animation: slideUp 0.5s ease-out;
+}
+
+.animate-slide-down {
+  animation: slideDown 0.5s ease-out;
+}
+
+.animate-scale-in {
+  animation: scaleIn 0.4s ease-out;
+}
+
+/* Stagger animation for grid items */
+.book-card:nth-child(1) { animation-delay: 0.05s; }
+.book-card:nth-child(2) { animation-delay: 0.1s; }
+.book-card:nth-child(3) { animation-delay: 0.15s; }
+.book-card:nth-child(4) { animation-delay: 0.2s; }
+.book-card:nth-child(5) { animation-delay: 0.25s; }
+.book-card:nth-child(6) { animation-delay: 0.3s; }
+.book-card:nth-child(n+7) { animation-delay: 0.35s; }
+
+/* ================================================================
+   ENHANCED SCROLLBAR
+   ================================================================ */
+
+::-webkit-scrollbar {
+  width: 12px;
+  height: 12px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg-secondary);
+  border-radius: var(--radius-md);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--accent-gradient);
+  border-radius: var(--radius-md);
+  border: 2px solid var(--bg-secondary);
+  transition: background var(--transition-fast);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, var(--accent-light), var(--accent-secondary));
+  box-shadow: 0 0 8px var(--accent-glow);
+}
+
+/* ================================================================
+   BUTTONS & INTERACTIVE ELEMENTS
+   ================================================================ */
+
+.btn-primary {
+  background: var(--accent-gradient);
+  color: white;
+  font-weight: 600;
+  transition: all var(--transition-base);
+  box-shadow: var(--shadow-md);
+  border: none;
+  position: relative;
+  overflow: hidden;
+}
+
+.btn-primary::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.2), transparent);
+  opacity: 0;
+  transition: opacity var(--transition-fast);
+}
+
+.btn-primary:hover::before {
+  opacity: 1;
+}
+
+.btn-primary:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-glow-strong);
+}
+
+.btn-primary:active {
+  transform: translateY(-1px);
+}
+
+.btn-secondary {
+  background: rgba(14, 165, 233, 0.1);
+  color: var(--accent-light);
+  font-weight: 600;
+  border: 1px solid rgba(14, 165, 233, 0.3);
+  transition: all var(--transition-base);
+}
+
+.btn-secondary:hover {
+  background: rgba(14, 165, 233, 0.2);
+  border-color: var(--accent-primary);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+kbd {
+  background: linear-gradient(to bottom, var(--bg-elevated), var(--bg-tertiary));
+  border: 1px solid rgba(14, 165, 233, 0.2);
+  border-radius: var(--radius-sm);
+  padding: var(--space-1) var(--space-3);
+  font-size: 0.8125rem;
+  font-family: ui-monospace, 'Courier New', monospace;
+  box-shadow: 0 2px 0 rgba(0, 0, 0, 0.3), 
+              inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+/* ================================================================
+   LOADING STATES
+   ================================================================ */
+
+.loading-spinner {
+  width: 48px;
+  height: 48px;
+  border: 4px solid rgba(14, 165, 233, 0.2);
+  border-top-color: var(--accent-primary);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.loading-pulse {
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    var(--bg-tertiary) 25%,
+    var(--bg-elevated) 50%,
+    var(--bg-tertiary) 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+  border-radius: var(--radius-md);
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+/* ================================================================
+   RESPONSIVE DESIGN
+   ================================================================ */
+
+@media (max-width: 768px) {
+  .books-grid {
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: var(--space-6);
+  }
+  
+  .book-title {
+    font-size: 0.875rem;
+  }
+  
+  .book-author {
+    font-size: 0.75rem;
+  }
+  
+  .play-button {
+    width: 64px;
+    height: 64px;
+  }
+  
+  .play-button svg {
+    width: 28px;
+    height: 28px;
+  }
+  
+  .meta-badge {
+    font-size: 0.625rem;
+    padding: var(--space-1) var(--space-2);
+  }
+}
+
+@media (max-width: 480px) {
+  .books-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--space-4);
+  }
+  
+  .book-info {
+    padding-top: var(--space-3);
+  }
+}
+
+/* ================================================================
+   UTILITY CLASSES
+   ================================================================ */
+
+.text-gradient {
+  background: var(--accent-gradient);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+/* Focus Styles for Accessibility */
+*:focus-visible {
+  outline: 2px solid var(--accent-primary);
+  outline-offset: 3px;
+  border-radius: var(--radius-sm);
+}
+
+button:focus-visible,
+input:focus-visible,
+select:focus-visible {
+  outline: 2px solid var(--accent-primary);
+  outline-offset: 2px;
+}
+
+/* Reduced Motion Support */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Dark Mode Enhancements */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.5), 0 4px 6px -2px rgba(0, 0, 0, 0.3);
+    --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.6), 0 10px 10px -5px rgba(0, 0, 0, 0.4);
+  }
+}
+
+/* Print Styles */
+@media print {
+  .no-print {
+    display: none !important;
+  }
+  
+  body {
+    background: white;
+    color: black;
+  }
+  
+  .book-card {
+    break-inside: avoid;
+  }
+}
